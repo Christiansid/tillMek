@@ -7,17 +7,21 @@ from datetime import datetime
 import argparse
 import xlsxwriter
 
+#Excel definitions
 timeCol = 0
 flowrateCol = 1
 floatSigCol = 2
 stopSigCol = 3
 start_time = datetime.now()
+
+#Parser
 parser = argparse.ArgumentParser('Parser to determine XLSX file')
 parser.add_argument('-xlsx_name', type = str, default= 'simRun.xlsx')
 parser.add_argument('-port', type = str, default = 'COM3')
 args = parser.parse_args()
 name = args.xlsx_name
 port = args.port
+
 def setup():
 
     #port = 'COM3'
@@ -28,18 +32,19 @@ def setup():
     arduino = serial.Serial(port, baudrate = 9600, timeout=3.000)
     handshake(arduino)
 
-
     #Excel file
     #name = 'test.xlsx'
     workbook = xlsxwriter.Workbook(name)
     return arduino, workbook
 
 def xlsxSetup(workbook):
+    #Creating excel sheet
     print('- Worksheed created.')
     bold = workbook.add_format({'bold': True})
     date_format = workbook.add_format({'num_format': 'yyyy-mm-dd hh:mm:ss.000'})
     worksheet = workbook.add_worksheet()
 
+    #Formatting
     worksheet.write_datetime('A1', start_time, date_format)
     worksheet.write('A3', 'Timestamp', bold)
     worksheet.write('B3', 'Flow rate', bold)
@@ -68,7 +73,7 @@ def handshake(arduino):
 def time_diff():
     return (datetime.now() - start_time).total_seconds()
 
-def thread_func(arduino):
+def thread_func(arduino): #Message passing to Arduino
         while True:
             print('\nType flow rate (15ml/m - 350ml/m):')
             rate = int(input())
@@ -92,14 +97,15 @@ if __name__ == "__main__":
         worksheet = xlsxSetup(workbook)
 
         print("- Flow rate input thread starting.")
-        #t1 = threading.Thread(target = thread_func, args=(arduino,))
-        #t1.daemon = True
-        #t1.start()
 
+        #Init thread
+        t1 = threading.Thread(target = thread_func, args=(arduino,))
+        t1.daemon = True
+        t1.start()
 
+        #Main loop
         while True:
             val = arduino.read().decode()
-
             check = worksheet.write(row, timeCol, time_diff() )
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
@@ -111,13 +117,13 @@ if __name__ == "__main__":
             check = worksheet.write(row, floatSigCol, val)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
-            val = arduino.read().decode()
 
+            val = arduino.read().decode()
             check = worksheet.write(row, stopSigCol, val)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
-            row = row+1
+            row = row+1 #Move down one row
 
     except KeyboardInterrupt:
         workbook.close()
