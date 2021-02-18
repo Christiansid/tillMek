@@ -1,5 +1,5 @@
 import threading
-#import serial
+import serial
 import sys
 import time
 import struct
@@ -13,27 +13,25 @@ floatSigCol = 2
 stopSigCol = 3
 start_time = datetime.now()
 parser = argparse.ArgumentParser('Parser to determine XLSX file')
-parser.add_argument('-xlsx_name', type = str)
+parser.add_argument('-xlsx_name', type = str, default= 'simRun.xlsx')
+parser.add_argument('-port', type = str, default = 'COM3')
 args = parser.parse_args()
 name = args.xlsx_name
-
+port = args.port
 def setup():
-    #Parser
 
-    #args = parser.parse_args()
     #port = 'COM3'
     #port = '/dev/cu.usbmodem143401'
 
     print('\nINITIALIZING')
     #Arduino
-    arduino = None # serial.Serial(port, baudrate = 9600, timeout=3.000)
-    #handshake(arduino)
+    arduino = serial.Serial(port, baudrate = 9600, timeout=3.000)
+    handshake(arduino)
 
 
     #Excel file
     #name = 'test.xlsx'
     workbook = xlsxwriter.Workbook(name)
-
     return arduino, workbook
 
 def xlsxSetup(workbook):
@@ -100,7 +98,7 @@ if __name__ == "__main__":
 
 
         while True:
-            val = input() #arduino.read().decode()
+            val = arduino.read().decode()
 
             check = worksheet.write(row, timeCol, time_diff() )
             if(check != 0):
@@ -113,7 +111,7 @@ if __name__ == "__main__":
             check = worksheet.write(row, floatSigCol, val)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
-            val = input() #arduino.read().decode()
+            val = arduino.read().decode()
 
             check = worksheet.write(row, stopSigCol, val)
             if(check != 0):
