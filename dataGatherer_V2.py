@@ -32,7 +32,7 @@ def setup():
 
 
     #Excel file
-    name = 'test.xlsx'
+    #name = 'test.xlsx'
     workbook = xlsxwriter.Workbook(name)
 
     return arduino, workbook
