@@ -106,29 +106,33 @@ if __name__ == "__main__":
             key = arduino.read().decode()
             if key != 'S':
                 continue
-                # val1 = arduino.read().decode()
-                # val2 = arduino.read().decode()
-                # val3 = arduino.read().decode()
-                # print(val1, val2, val3)
+            key_time = datetime.now()
+
+            val1 = arduino.read().decode()
+            val2 = arduino.read().decode()
+            val3 = arduino.read().decode()
 
             check =worksheet.write(row, timeCol, time_diff() )
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
-            check =worksheet.write(row,flowrateCol, val )
+            check =worksheet.write(row,flowrateCol, val1)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
-            check = worksheet.write(row, floatSigCol, val)
+            check = worksheet.write(row, floatSigCol, val2)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
             val = arduino.read().decode()
-            
-            check = worksheet.write(row, stopSigCol, val)
+
+            check = worksheet.write(row, stopSigCol, val3)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
             row = row+1
+                
+            print((datetime.now() - key_time).total_seconds())
+
 
     except KeyboardInterrupt:
         workbook.close()
