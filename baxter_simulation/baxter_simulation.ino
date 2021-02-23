@@ -11,21 +11,17 @@ volatile bool circuitState = false;         // For sending circuit state to seri
 volatile bool simulateFloat = true;         // For sending simulation state to serial
 
 // PUMPSIMULATION                             // 15ml/m - 350ml/m
-byte flowrate = 15;                            // Slagvolym 0.7ml/slag
+int flowrate = 15;                            // Slagvolym 0.7ml/slag
 int pump_delay = 1000/(flowrate/0.7)*60;      // 0.33 - 8.333 slag/s
 
 bool handshake = false;
 
-// BINARY SERIAL COMMS
-const byte numBytes = 32;
-byte receivedBytes[numBytes];
-byte numReceived = 0;
-boolean newData = false;
+
 
 void setup() {
   pinMode(floatPin, OUTPUT);
-  pinMode(stopPin, INPUT);
   pinMode(led_arduino, OUTPUT);
+  pinMode(stopPin, INPUT);
   pinMode(buttonPin, INPUT);
   Serial.begin(9600);
 
@@ -34,7 +30,7 @@ void setup() {
   while (true) {
     delay(1000);
     if (Serial.read() == 'P'){    //Polo
-      delay(5000);
+      delay(4000);
       break;
     }
   }
@@ -45,24 +41,23 @@ void setup() {
 }
 
 
+
 void loop() { 
+  
 
   // SIMULATE FLOAT SWITCHES
   if (simulateFloat){
     digitalWrite(floatPin, HIGH);
     delay(pump_delay/2);
-
-    sendInfo();
-    
     digitalWrite(floatPin, LOW); 
     delay(pump_delay/2);
 
-    
+    sendInfo();
   } 
   else 
   {
    delay(1000); 
-   //sendInfo();
+   sendInfo();
   }
 
  
@@ -77,8 +72,8 @@ void simulateStop() {
   unsigned long interrupt_time = millis();
 
   if (interrupt_time - last_interrupt_time > 200){
-      simulateFloat =! simulateFloat;  
-      digitalWrite(led_arduino, LOW);
+      simulateFloat =! simulateFloat; 
+      digitalWrite(led_arduino, LOW); 
   }
   last_interrupt_time = interrupt_time;
 
@@ -99,10 +94,10 @@ void circuitStop() {
 // SEND DATA
 void sendInfo() {
   // Serial.println(millis());
+  Serial.print('S');
   Serial.print(false);
   Serial.print(simulateFloat);
   Serial.print(circuitState);
-  Serial.println();
 
 }
 
