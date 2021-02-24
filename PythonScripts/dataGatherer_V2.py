@@ -112,26 +112,28 @@ if __name__ == "__main__":
             val2 = arduino.read().decode()
             val3 = arduino.read().decode()
 
-            check =worksheet.write(row, timeCol, time_diff() )
+            print('read: ', (datetime.now() - key_time).total_seconds())
+
+            check = worksheet.write(row, timeCol, time_diff() )
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
-            check =worksheet.write(row,flowrateCol, val1)
+
+            check = worksheet.write(row,flowrateCol, val1)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
             check = worksheet.write(row, floatSigCol, val2)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
-            val = arduino.read().decode()
 
             check = worksheet.write(row, stopSigCol, val3)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
             row = row+1
-                
-            print((datetime.now() - key_time).total_seconds())
+
+            print('total: ', (datetime.now() - key_time).total_seconds())
 
 
     except KeyboardInterrupt:
