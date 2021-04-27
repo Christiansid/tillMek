@@ -17,10 +17,12 @@ start_time = datetime.now()
 parser = argparse.ArgumentParser('Parser to determine XLSX file')
 parser.add_argument('-xlsx_name', type = str, default= 'simRun.xlsx')
 parser.add_argument('-port', type = str, default = 'COM3')
+parser.add_argument('-flow', type = int, default = 20)
+
 args = parser.parse_args()
 name = args.xlsx_name
 port = args.port
-
+flow = args.flow
 
 
 
@@ -38,7 +40,7 @@ def setup():
     return arduino, workbook
 
 def xlsxSetup(workbook):
-    print('- Worksheed created.')
+    print('- Worksheet created.')
     bold = workbook.add_format({'bold': True})
     date_format = workbook.add_format({'num_format': 'yyyy-mm-dd hh:mm:ss.000'})
     worksheet = workbook.add_worksheet()
@@ -95,12 +97,12 @@ if __name__ == "__main__":
         [arduino, workbook] = setup()
         worksheet = xlsxSetup(workbook)
 
-        print("- Flow rate input thread starting.")
-        t1 = threading.Thread(target = thread_func, args=(arduino,))
-        t1.daemon = True
-        t1.start()
+        # print("- Flow rate input thread starting.")
+        # t1 = threading.Thread(target = thread_func, args=(arduino,))
+        # t1.daemon = True
+        # t1.start()
 
-
+        oldval3 = 0
         while True:
 
             key = arduino.read().decode()
@@ -119,7 +121,7 @@ if __name__ == "__main__":
                 raise xlsxwriter.exceptions.XlsxWriterException
 
 
-            check = worksheet.write_number(row,flowrateCol, val1)
+            check = worksheet.write_number(row,flowrateCol, flow)
             if(check != 0):
                 raise xlsxwriter.exceptions.XlsxWriterException
 
@@ -133,8 +135,10 @@ if __name__ == "__main__":
 
             row = row+1
 
-            print('total: ', (datetime.now() - key_time).total_seconds())
-
+            # PRINT TO CONSOLE WHEN PUMP FAILURE DETECTED
+            if (val3 == 1) & (oldval3 == 0):
+                print(f'Pump failure detected. {val3} {oldval3}')
+            oldval3 = val3
 
     except KeyboardInterrupt:
         workbook.close()
