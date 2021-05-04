@@ -9,7 +9,7 @@ volatile bool circuitState = false;         // For sending circuit state to seri
 volatile bool simulateFloat = true;         // For sending simulation state to serial
 
 // PUMPSIMULATION                             // 15ml/m - 350ml/m
-int flowrate = 20;                            // Slagvolym 0.7ml/slag
+int flowrate = 200;                            // Slagvolym 0.7ml/slag
 int pump_delay = 1000/(flowrate/0.7)*60;      // 0.33 - 8.333 slag/s
 
 
@@ -57,7 +57,7 @@ void loop() {
 
 
   int curr_time = millis();
-  if (curr_time - last_stop > 10000){
+  if (curr_time - last_stop > 20000){
     simulateFloat =! simulateFloat;
     last_stop = curr_time;
   }
