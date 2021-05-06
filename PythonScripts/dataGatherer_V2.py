@@ -114,7 +114,7 @@ if __name__ == "__main__":
             val2 = int(arduino.read().decode())
             val3 = int(arduino.read().decode())
 
-            print('read: ', (datetime.now() - key_time).total_seconds())
+            #print('read: ', (datetime.now() - key_time).total_seconds())
 
             check = worksheet.write_number(row, timeCol, time_diff() )
             if(check != 0):
@@ -135,9 +135,12 @@ if __name__ == "__main__":
 
             row = row+1
 
+            # PRINT RECIEVED MESSAGE
+            print("Float:", val2, "Stop:", val3)
+
             # PRINT TO CONSOLE WHEN PUMP FAILURE DETECTED
             if (val3 == 1) & (oldval3 == 0):
-                print(f'Pump failure detected. {val3} {oldval3}')
+                print('Pump failure detected.' , val3 , oldval3)
             oldval3 = val3
 
     except KeyboardInterrupt:

@@ -5,11 +5,11 @@ const byte led_arduino = 13;
 
 unsigned long last_stop = 0;                // Keeps track of how often to stop the float switch simulation
 
-volatile bool circuitState = false;         // For sending circuit state to serial
+volatile bool stopFlag = false;             // For sending circuit state to serial
 volatile bool simulateFloat = true;         // For sending simulation state to serial
 
 // PUMPSIMULATION                             // 15ml/m - 350ml/m
-int flowrate = 200;                            // Slagvolym 0.7ml/slag
+int flowrate = 300;                            // Slagvolym 0.7ml/slag
 int pump_delay = 1000/(flowrate/0.7)*60;      // 0.33 - 8.333 slag/s
 
 
@@ -41,10 +41,10 @@ void loop() {
   // SIMULATE FLOAT SWITCHES
   if (simulateFloat){
     digitalWrite(floatPin, HIGH);
-    digitalWrite(led_arduino, HIGH);
+    //digitalWrite(led_arduino, HIGH);
     delay(pump_delay/2);
     digitalWrite(floatPin, LOW);
-    digitalWrite(led_arduino, LOW); 
+    //digitalWrite(led_arduino, LOW); 
     delay(pump_delay/2);
 
     sendInfo();
@@ -53,6 +53,12 @@ void loop() {
   {
    delay(pump_delay); 
    sendInfo();
+  }
+
+  // Reset simulation after stop signal has been sent
+  if (stopFlag == true){
+    simulateFloat = true;
+    stopFlag = false;
   }
 
 
@@ -82,21 +88,18 @@ void simulateStop() {
 
 // TRIGGERED WHEN CIRCUIT RECOGNISES PUMP FAILURE
 void circuitStop() {               
-  circuitState = digitalRead(stopPin);
+  stopFlag = digitalRead(stopPin);
+  digitalWrite(led_arduino, HIGH);
   sendInfo();
-
-  simulateFloat = true;
-  circuitState = false;
 
 }
 
 
 // SEND DATA
 void sendInfo() {
-  // Serial.println(millis());
   Serial.print('S');
   Serial.print(false);
   Serial.print(simulateFloat);
-  Serial.print(circuitState);
+  Serial.println(stopFlag);
 
 }
